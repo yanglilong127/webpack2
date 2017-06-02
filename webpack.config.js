@@ -40,9 +40,7 @@ module.exports={
 				test:/\.css$/,
 				exclude:/node_modules/,
 				use:ExtractCSS.extract([
-					{
-						loader:'css-loader',				
-					},
+					'css-loader',									
 					{
 						loader:'postcss-loader',
 						options: {
@@ -57,19 +55,39 @@ module.exports={
 					}
 				])
 			},
+			/**
+			{
+				test:/\.less/,
+				use:new ExtractTextPlugin('css/[name].css').extract(['css-loader','less-loader'])
+			},
+			 **/
+			{
+				test:/\.(eot|svg|ttf|woff|woff2)$/,
+				loader:'file-loader',
+				options:{
+					limit:5000,
+					name:'/font/[hash:8]_[name].[ext]'
+				}
+			},
 			{
 				test:/\.(jpe?g|gif|png|svg)$/,
 				loader:'file-loader?name=/images/[hash:8].[name].[ext]'
 			}
 		]
 	},
-	//postcss: [require('autoprefixer')],
+	/****
+	postcss: [require("autoprefixer")({
+                    browsers: ['ie>=8','>1% in CN']
+            })],
+    *****/
 	resolve:{
 		alias:{
+			testjs:path.join(__dirname,'src/js/test.js'),
 			jquery:path.join(__dirname,'libs/js/jquery.js'),
 			indexcss:path.join(__dirname,'src/css/index.css'),
 			homecss:path.join(__dirname,'src/css/home.css'),
-			newscss:path.join(__dirname,'src/css/news.css')
+			newscss:path.join(__dirname,'src/css/news.css'),
+			fontcss:path.join(__dirname,'src/font/iconfont.css')
 		}
 	},
 	plugins:[
@@ -118,7 +136,7 @@ module.exports={
                 }
             }
         }),
-        *****/
+        ******/
 		//压缩
 		/*****
 		new webpack.optimize.UglifyJsPlugin({
@@ -141,6 +159,7 @@ module.exports={
 	devServer:{
 		contentBase:__dirname+'/dist',
 		//contentBase:__dirname+'/src',
-	}
+	},
+	watch:true,
 
 }
