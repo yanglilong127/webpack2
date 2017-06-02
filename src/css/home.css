@@ -1,3 +1,10 @@
 body{
 	font-size: 30px
 }
+#box1{
+	width:100px;
+	height:100px;
+	border:1px #f0dea1 solid;
+	border-radius: 10px;
+	transform:rotate(-3deg);
+}

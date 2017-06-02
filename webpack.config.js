@@ -11,6 +11,7 @@ var isDev=process.env.NODE_ENV==='dev'
 module.exports={
 	entry:{
 		index:path.join(__dirname,'src/js/index.js'),
+		news:path.join(__dirname,'src/js/news.js'),
 		common:[
 			path.join(__dirname,'libs/js/app.js'),
 			path.join(__dirname,'libs/js/jquery.js')
@@ -38,7 +39,23 @@ module.exports={
 			{
 				test:/\.css$/,
 				exclude:/node_modules/,
-				use:ExtractCSS.extract('css-loader')
+				use:ExtractCSS.extract([
+					{
+						loader:'css-loader',				
+					},
+					{
+						loader:'postcss-loader',
+						options: {
+			                postcss: function(){
+			                    return [
+			                        require("autoprefixer")({
+			                            browsers: ['ie>=8','>1% in CN']
+			                        })
+			                    ]
+			                }
+			            }
+					}
+				])
 			},
 			{
 				test:/\.(jpe?g|gif|png|svg)$/,
@@ -46,11 +63,13 @@ module.exports={
 			}
 		]
 	},
+	//postcss: [require('autoprefixer')],
 	resolve:{
 		alias:{
 			jquery:path.join(__dirname,'libs/js/jquery.js'),
 			indexcss:path.join(__dirname,'src/css/index.css'),
-			homecss:path.join(__dirname,'src/css/home.css')
+			homecss:path.join(__dirname,'src/css/home.css'),
+			newscss:path.join(__dirname,'src/css/news.css')
 		}
 	},
 	plugins:[
@@ -74,16 +93,32 @@ module.exports={
 			template:path.join(__dirname,'src/html/news.ejs'),
 			info:'三个打酱油',
 			inject:true,
-			chunks:['index']
+			chunks:['news']
 		}),
 		new webpack.optimize.CommonsChunkPlugin({
 			names:['common']
 		}),
+		//自动加载模块，当$被当作未赋值的变量时
 		new webpack.ProvidePlugin({
 			$:'jquery',
 			jQuery:'jquery',
 			'window.jQuery':'jquery'
-		})
+		}),
+		//（删除重复依赖的文件）
+    	new webpack.optimize.DedupePlugin(),
+    	/**** 踩坑，在这里配postcss不行，在postcss-loader上面配
+    	new webpack.LoaderOptionsPlugin({
+            options: {
+                postcss: function(){
+                    return [
+                        require("autoprefixer")({
+                            browsers: ['ie>=8','>1% in CN']
+                        })
+                    ]
+                }
+            }
+        }),
+        *****/
 		//压缩
 		/*****
 		new webpack.optimize.UglifyJsPlugin({
@@ -93,6 +128,15 @@ module.exports={
 			}
 		})
 		********/
+		//发布前清空发布目录
+		/*****
+		new CleanWebpackPlugin(['dist'], {
+	        root: '', // An absolute path for the root  of webpack.config.js
+	        verbose: true,// Write logs to console.
+	        dry: false // Do not delete anything, good for testing.
+	    }),
+	    ****/
+	    
 	],
 	devServer:{
 		contentBase:__dirname+'/dist',
