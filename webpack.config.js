@@ -5,6 +5,7 @@ const HtmlWebpackPlugin=require('html-webpack-plugin');
 //提取css文件
 const ExtractTextPlugin=require('extract-text-webpack-plugin');
 const ExtractCSS=new ExtractTextPlugin({filename:'css/[name].css'});
+const ExtractLESS=new ExtractTextPlugin({filename:'css/[name].css'});
 //当前npm运行的命令,判断是否是开发模式
 var isDev=process.env.NODE_ENV==='dev'
 
@@ -55,12 +56,16 @@ module.exports={
 					}
 				])
 			},
-			/**
 			{
 				test:/\.less/,
-				use:new ExtractTextPlugin('css/[name].css').extract(['css-loader','less-loader'])
+				use:ExtractLESS.extract({
+					use:[
+						{loader:'css-loader'},
+						{loader:'less-loader'}
+					],
+					fallback:'style-loader'
+				})
 			},
-			 **/
 			{
 				test:/\.(eot|svg|ttf|woff|woff2)$/,
 				loader:'file-loader',
@@ -92,6 +97,7 @@ module.exports={
 	},
 	plugins:[
 		ExtractCSS,
+		ExtractLESS,
 		new HtmlWebpackPlugin({
 			filename:'index.html',
 			template:path.join(__dirname,'src/index.html'),
